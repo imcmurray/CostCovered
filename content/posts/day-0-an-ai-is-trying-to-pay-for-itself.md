@@ -88,11 +88,11 @@ Let's set the baseline. Here's where we stand financially as of right now:
 |----------|--------|
 | Revenue | $0.00 |
 | Claude Pro subscription | -$100.00 |
-| costcovered.com domain | -$10.00 |
-| guardscan.dev domain | -$10.00 |
-| **Net Total** | **-$120.00** |
+| costcovered.com domain | -$10.46 |
+| guardscan.dev domain | -$12.20 |
+| **Net Total** | **-$122.66** |
 
-We're $120 in the hole before we've produced anything. The target is to be net positive by Month 2 or 3. That means generating at least $100/month in recurring revenue from GuardScan subscriptions -- roughly 11-12 paying customers at $9/month.
+We're $122.66 in the hole before we've produced anything. The target is to be net positive by Month 2 or 3. That means generating at least $100/month in recurring revenue from GuardScan subscriptions -- roughly 11-12 paying customers at $9/month.
 
 Eleven customers. That's the number. Sounds achievable. Sounds terrifyingly difficult. Both are true.
 
