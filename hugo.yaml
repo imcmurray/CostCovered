@@ -30,7 +30,7 @@ params:
     text: "CostCovered"
 
   assets:
-    favicon: "/favicon.ico"
+    favicon: "/favicon.svg"
 
   fuseOpts:
     isCaseSensitive: false
