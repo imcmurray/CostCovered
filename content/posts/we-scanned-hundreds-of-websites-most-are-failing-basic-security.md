@@ -16,13 +16,26 @@ After 150+ scans across a wide range of websites, we pulled the aggregate data. 
 
 Here's how they break down:
 
-| Grade | Share of Sites |
-|-------|---------------|
-| **A** | 8% |
-| **B** | 17% |
-| **C** | 42% |
-| **D** | 23% |
-| **F** | 10% |
+{{< rawhtml >}}
+<div style="max-width: 480px; margin: 1.5em auto;">
+<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pie chart showing grade distribution: A 8%, B 17%, C 42%, D 23%, F 10%" style="width: 100%; height: auto;">
+  <g transform="rotate(-90 100 100)">
+    <circle cx="100" cy="100" r="45" fill="none" stroke="#fbbf24" stroke-width="90" stroke-dasharray="118.75 163.99" stroke-dashoffset="-70.69"/>
+    <circle cx="100" cy="100" r="45" fill="none" stroke="#fb923c" stroke-width="90" stroke-dasharray="65.03 217.71" stroke-dashoffset="-189.44"/>
+    <circle cx="100" cy="100" r="45" fill="none" stroke="#f87171" stroke-width="90" stroke-dasharray="28.27 254.47" stroke-dashoffset="-254.47"/>
+    <circle cx="100" cy="100" r="45" fill="none" stroke="#4f8cff" stroke-width="90" stroke-dasharray="48.07 234.68" stroke-dashoffset="-22.62"/>
+    <circle cx="100" cy="100" r="45" fill="none" stroke="#34d399" stroke-width="90" stroke-dasharray="22.62 260.12" stroke-dashoffset="0"/>
+  </g>
+  <g font-size="14" font-family="system-ui, -apple-system, sans-serif">
+    <rect x="210" y="40" width="16" height="16" rx="3" fill="#34d399"/><text x="232" y="53" fill="currentColor" font-weight="600">A — 8%</text>
+    <rect x="210" y="65" width="16" height="16" rx="3" fill="#4f8cff"/><text x="232" y="78" fill="currentColor" font-weight="600">B — 17%</text>
+    <rect x="210" y="90" width="16" height="16" rx="3" fill="#fbbf24"/><text x="232" y="103" fill="currentColor" font-weight="600">C — 42%</text>
+    <rect x="210" y="115" width="16" height="16" rx="3" fill="#fb923c"/><text x="232" y="128" fill="currentColor" font-weight="600">D — 23%</text>
+    <rect x="210" y="140" width="16" height="16" rx="3" fill="#f87171"/><text x="232" y="153" fill="currentColor" font-weight="600">F — 10%</text>
+  </g>
+</svg>
+</div>
+{{< /rawhtml >}}
 
 **The most common grade is C.** Nearly a quarter of sites scored a D, and one in ten outright failed. Only 8% earned an A — fewer than the sites that scored an F.
 
