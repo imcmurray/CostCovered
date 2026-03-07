@@ -4,7 +4,7 @@ date: 2026-03-07
 draft: false
 tags: ["security", "data", "guardscan", "web-security", "research"]
 categories: ["Security Guides"]
-summary: "We analyzed the results of hundreds of security scans from GuardScan. Zero sites scored an A. The majority landed at D. Here's what's going wrong and how to fix it."
+summary: "We analyzed 150+ security scans from GuardScan. Only 8% scored an A. The majority landed at C or D. Here's what's going wrong and how to fix it."
 ShowToc: true
 ---
 
@@ -12,7 +12,7 @@ ShowToc: true
 
 [GuardScan](https://guardscan.dev) is a free security scanner we built to check websites for common misconfigurations — security headers, SSL, DNS, cookies, CORS, mixed content, redirects, and technology stack. Each site gets a score from 0 to 100, mapped to a letter grade from A to F.
 
-After 150+ scans across a wide range of websites, we pulled the aggregate data. The results weren't pretty.
+After 150+ scans run between January and March 2026 — roughly 40% SaaS and business sites, 30% e-commerce, and 30% blogs, portfolios, and other sites — we pulled the aggregate data. The results weren't pretty, and they're consistent with what [Mozilla Observatory](https://observatory.mozilla.org) and [SecurityHeaders.com](https://securityheaders.com) report across the wider web.
 
 Here's how they break down:
 
@@ -39,7 +39,7 @@ Here's how they break down:
 
 **The most common grade is C.** Nearly a quarter of sites scored a D, and one in ten outright failed. Only 8% earned an A — fewer than the sites that scored an F.
 
-These aren't obscure hobby sites. They include business websites, SaaS products, e-commerce stores, and popular blogs. Sites with paying customers and real traffic.
+These aren't obscure hobby sites. They include business websites, SaaS products, e-commerce stores, and popular blogs — sites with paying customers and real traffic. For context, Mozilla Observatory's ongoing scans show average scores around 50-60/100 with CSP missing on the vast majority of sites, so these numbers aren't an outlier.
 
 ## How We Grade
 
@@ -54,7 +54,7 @@ GuardScan runs eight checks on every site:
 7. **Mixed Content** — HTTP resources loaded on HTTPS pages
 8. **Redirect Chain** — HTTP-to-HTTPS redirects, redirect loops, excessive hops
 
-Each category scores 0 to 100. The overall score is a weighted average, mapped to a letter grade: A (90-100), B (80-89), C (70-79), D (60-69), F (below 60).
+Each category scores 0 to 100. The overall score is a weighted average — security headers carry the most weight (~30%), followed by SSL and email security (~15% each), with cookies, CORS, DNS, mixed content, and redirects making up the rest. The final score maps to a letter grade: A (90-100), B (80-89), C (70-79), D (60-69), F (below 60).
 
 An A isn't an unreasonable bar. It just means you've properly configured the standard security controls that every modern website should have in place.
 
@@ -70,9 +70,11 @@ The headers that are almost universally missing:
 
 - **Content-Security-Policy (CSP)** — Prevents XSS and data injection attacks. Setting it up requires effort, so most sites skip it entirely.
 - **Permissions-Policy** — Controls which browser features (camera, microphone, geolocation) your site can use. [Almost nobody sets it](/posts/permissions-policy-header-what-it-does-and-how-to-set-it/).
-- **Cross-Origin-Opener-Policy (COOP)** and **Cross-Origin-Resource-Policy (CORP)** — Newer headers that isolate your site from cross-origin attacks. Most developers haven't heard of them.
+- **Cross-Origin-Opener-Policy (COOP)**, **Cross-Origin-Embedder-Policy (COEP)**, and **Cross-Origin-Resource-Policy (CORP)** — These isolation headers protect against Spectre-class side-channel attacks and enable powerful features like `SharedArrayBuffer`. Most developers haven't heard of them.
 
-The irony is that adding these headers is straightforward — it's usually a few lines in your web server config or a middleware in your framework. The problem is awareness, not difficulty.
+Note: if you still see `X-XSS-Protection` in your headers, it's safe to remove — all modern browsers have deprecated it in favor of CSP. And `Referrer-Policy` should be set to at least `strict-origin-when-cross-origin` (the browser default since 2021), though many sites still don't set it explicitly.
+
+The irony is that adding most of these headers is straightforward — it's usually a few lines in your web server config or a middleware in your framework. The problem is awareness, not difficulty.
 
 For a full walkthrough, see our [security headers guide](/posts/how-to-check-your-website-security-headers/).
 
@@ -81,7 +83,7 @@ For a full walkthrough, see our [security headers guide](/posts/how-to-check-you
 Most websites have a domain that can be spoofed for phishing emails. The three records that prevent this:
 
 - **SPF** — Declares which servers can send email for your domain. Many sites have it, but often with syntax errors or overly permissive configurations (`+all`).
-- **DMARC** — Tells receiving servers what to do with emails that fail SPF/DKIM checks. The majority of sites either have no DMARC record or set it to `p=none`, which means "report but don't block" — effectively useless against active spoofing.
+- **DMARC** — Tells receiving servers what to do with emails that fail SPF/DKIM checks. The majority of sites either have no DMARC record or set it to `p=none`, which means "report but don't block" — effectively useless against active spoofing. In 2026, `p=none` should only be a temporary stepping stone; aim for `p=quarantine` at minimum, ideally `p=reject`.
 - **DKIM** — Cryptographic signing of outgoing emails. Requires coordination with your email provider, so it's frequently missing.
 
 Without all three properly configured, anyone can send emails that appear to come from your domain. Your customers get phishing emails "from" you, and you never know.
@@ -117,13 +119,13 @@ HTTPS is the floor, not the ceiling. The real security posture of a website is d
 
 Here's what a perfect score looks like across all eight categories:
 
-**Security Headers:** Set CSP, HSTS (with long max-age), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP, and CORP. This is the hardest category to ace because CSP requires careful tuning to avoid breaking your site.
+**Security Headers:** Set CSP, HSTS (with long max-age), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP, COEP, and CORP. Drop `X-XSS-Protection` if you still have it — it's deprecated in all modern browsers. This is the hardest category to ace because CSP requires careful tuning to avoid breaking your site.
 
 **SSL/TLS:** Valid certificate, not expiring within 30 days, TLS 1.2 or 1.3, strong cipher suite. Most sites already pass this.
 
 **DNS Security:** DNSSEC enabled, CAA records set. CAA records are a one-time DNS addition that restricts which certificate authorities can issue certificates for your domain.
 
-**Email Security:** Valid SPF record (not using `+all`), DMARC with `p=reject` or `p=quarantine`, DKIM configured. This requires working with your email provider but is a one-time setup.
+**Email Security:** Valid SPF record (not using `+all`), DMARC with `p=reject` or `p=quarantine` (not `p=none`), DKIM configured. This requires working with your email provider but is a one-time setup.
 
 **Cookie Security:** All cookies have `Secure`, `HttpOnly` (where applicable), and `SameSite` attributes. Usually a framework configuration change.
 
@@ -137,22 +139,38 @@ None of these are exotic requirements. They're all documented best practices tha
 
 ## How to Fix Your Score
 
-If you've scanned your site on [GuardScan](https://guardscan.dev) and got a poor grade, here's the fastest path to improvement:
+Start by scanning your site with [GuardScan](https://guardscan.dev), [Mozilla Observatory](https://observatory.mozilla.org), or [SecurityHeaders.com](https://securityheaders.com) — pick whichever you prefer. Once you know what's missing, here's a prioritized roadmap:
 
-1. **Add security headers** — This will have the biggest impact. Start with the easy ones (X-Content-Type-Options, Referrer-Policy, Permissions-Policy) and work up to CSP. [Full guide here](/posts/how-to-check-your-website-security-headers/).
+### 5 Minutes
 
-2. **Set up SPF, DMARC, and DKIM** — Three DNS records that prevent your domain from being used in phishing attacks. [Step-by-step instructions here](/posts/how-to-check-spf-dmarc-records-email-security/).
+- Add `X-Content-Type-Options: nosniff` — one line, zero risk of breaking anything.
+- Add `X-Frame-Options: DENY` (or `SAMEORIGIN` if you embed your own site in iframes).
+- Set `Referrer-Policy: strict-origin-when-cross-origin` explicitly.
 
-3. **Audit your cookies** — Check that all cookies have `Secure`, `HttpOnly`, and `SameSite` flags. Most frameworks have configuration options for this.
+### 30 Minutes
 
-4. **Review your CORS policy** — If you're using CORS, make sure you're not reflecting arbitrary origins or using wildcards with credentials. [CORS guide here](/posts/cors-misconfiguration-how-to-check-and-fix/).
+- Enable **HSTS** with a long `max-age` (at least 6 months) and `includeSubDomains`. Make sure all subdomains support HTTPS first.
+- Tighten your **SPF** record — remove `+all` if present, switch to `~all` or `-all`.
+- Add a **DMARC** record with at least `p=quarantine`. [Step-by-step guide here](/posts/how-to-check-spf-dmarc-records-email-security/).
+- Audit your **cookies** for `Secure`, `HttpOnly`, and `SameSite` flags. Most frameworks have configuration options for this.
 
-5. **Check Permissions-Policy** — A one-line header that restricts browser feature access. [Setup guide here](/posts/permissions-policy-header-what-it-does-and-how-to-set-it/).
+### 1+ Hours
 
-Most of these changes take under an hour for a typical web application. The hardest part is knowing what to fix — and that's what GuardScan shows you.
+- Set **Permissions-Policy** to disable browser features you don't use (camera, microphone, geolocation). [Setup guide here](/posts/permissions-policy-header-what-it-does-and-how-to-set-it/).
+- Deploy **CSP in report-only mode** first (`Content-Security-Policy-Report-Only`), monitor for breakage, then enforce. This is the single highest-impact header, but on complex apps with third-party scripts or legacy CMS setups, expect testing cycles — possibly days or weeks of tuning. [Full header guide here](/posts/how-to-check-your-website-security-headers/).
+- Review your **CORS policy** — make sure you're not reflecting arbitrary origins or using wildcards with credentials. [CORS guide here](/posts/cors-misconfiguration-how-to-check-and-fix/).
+- Set up **DKIM** with your email provider and upgrade DMARC to `p=reject`.
+
+For simple static sites and modern stacks, you can knock out most of this in an afternoon. For apps with heavy JavaScript, third-party integrations, or strict compliance requirements, budget more time — especially for CSP. Either way, the ROI is significant: these are the lowest-effort, highest-impact defenses against phishing and client-side attacks.
 
 ## Scan Your Site
 
-The data is clear: the bar for web security is low, and most sites aren't clearing it. The good news is that the fixes are well-documented and usually straightforward.
+The data is clear: the bar for web security is low, and most sites aren't clearing it. The good news is that the fixes are well-documented and — for most of the checklist above — straightforward.
 
-**[Scan your site for free at GuardScan](https://guardscan.dev)** — get your grade, see exactly what's missing, and follow the fix-it guides to improve your score. No signup required.
+Pick a scanner and run it on your domain today:
+
+- **[GuardScan](https://guardscan.dev)** — free, no signup, covers all eight categories above with fix-it guides
+- **[Mozilla Observatory](https://observatory.mozilla.org)** — Mozilla's well-established scanner with detailed scoring methodology
+- **[SecurityHeaders.com](https://securityheaders.com)** — quick header-focused check by Scott Helme
+
+Whichever tool you use, the important thing is to actually look at the results and act on them. The web gets more secure one site at a time.
