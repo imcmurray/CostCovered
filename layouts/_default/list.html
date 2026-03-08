@@ -87,7 +87,7 @@
   {{- if not (.Param "hideMeta") }}
   <footer class="entry-footer">
     {{- partial "post_meta.html" . -}}
-    {{- with ($.GetTerms "tags") }}
+    {{- with (.GetTerms "tags") }}
     <ul class="entry-tags">
       {{- range . }}
       {{- $colors := slice "#3b82f6" "#10b981" "#8b5cf6" "#f59e0b" "#ec4899" "#14b8a6" "#f97316" "#6366f1" }}
